@@ -61,15 +61,20 @@ if (__name__ == "__main__"):
     output = []
     for word in user_input.split(sep=" "):
 
+        #####################################################
+        # Implementation Idea:                              #
+        # Using a stack of stacks                           #
+        #####################################################
+
         # Iterate each character
         stack = []
-        output = []
         has_added = True
         output_length = 0
         i = 0
         while (True):
 
-            # first step: get all the possible subwords
+            # first step: get all the possible subwords 
+            # and append them to a smaller stack
             smaller_stack = []
             if (has_added):
                 w = ""
@@ -77,44 +82,54 @@ if (__name__ == "__main__"):
                     w = word[i:i+j]
                     smaller_stack.append(w)
                 stack.append(smaller_stack)
-
             
-            # second step: pop the subword
+            # second step: pop subword inside the smaller stack
             try:
                 top = stack[ len(stack) - 1 ].pop()
 
             except (IndexError):
+
                 if (len(stack) != 0):
                     stack.pop()
                 else:
                     output = []
                     break
 
-            
             # third step: find the chemical symbol
             try:
-                # if found
-                chemical_symbol = periodic_table[top.lower()]
+                # found the chemical
+                chemical = periodic_table[top.lower()]
+
+                # update output length, output and i
+                output_length += len(chemical.get_symbol())
+                output.append(chemical)
+                i += len(chemical.get_symbol())
+
+                # update has_added
                 has_added = True
-                output_length += len(chemical_symbol.get_symbol())
-                output.append(chemical_symbol)
-                i += len(chemical_symbol.get_symbol())
-                
 
             except (KeyError):
-                # else
+
+                # chemical symbol not found
                 has_added = False
 
+                # no more possible within the substack (or smaller stack)
                 if (len(stack[ len(stack) - 1 ]) == 0):
+                    
+                    # no more output => cannot go backtrack => no more output
                     if (len(output) == 0):
                         break
+
+                    # remove the most recent chemical
                     rmv = output.pop()
+
+                    # update output length and i
                     i -= len(rmv.get_symbol())
                     output_length -= len(rmv.get_symbol())
 
+            # output length is the same as length of word => done
             if (output_length >= len(word)):
                 break
-
 
     # Output the result
     print("Output:")

@@ -1,4 +1,5 @@
-from re import L
+from re import A, L
+from attr import has
 from numpy import char
 import pandas as pd
 
@@ -61,54 +62,59 @@ if (__name__ == "__main__"):
     for word in user_input.split(sep=" "):
 
         # Iterate each character
-        character = ""
+        stack = []
+        output = []
+        has_added = True
+        output_length = 0
         i = 0
-        j = 1
-        while (i < len(word)):
+        while (True):
+
+            # first step: get all the possible subwords
+            smaller_stack = []
+            if (has_added):
+                w = ""
+                for j in range(1, max_symbol_len + 1):
+                    w = word[i:i+j]
+                    smaller_stack.append(w)
+                stack.append(smaller_stack)
+
             
-            for k in range(0, j):
-                character += word[i + k]
-
-            print("{:d}: {:s}".format(i, character))
-
+            # second step: pop the subword
             try:
-                # finding the chemical symbol
-                output.append(periodic_table[character])
-                # update i
-                i += 1
-                # update j
-                j = 1
-                # update character
-                character = ""
+                top = stack[ len(stack) - 1 ].pop()
 
-                continue
-
-            # when key not found
-            except KeyError:
-
-                if (len(character) >= max_symbol_len):
-
-                    # get the recent symbol
-                    recent_symbol = Chemical(0, "", "", 0)
-                    if (len(output) != 0):
-
-                        recent_symbol = output.pop()
-                        # update the i
-                        i -= (len(recent_symbol.get_symbol()) + max_symbol_len)
-                        # update j
-                        j += 1
-                        # update character
-                        character = ""
-                    
-                    else:
-                        print("{:s} does not have the chemical symbols.".format(word))
-                        break
-                
-                if (i < -1):
-                    print("{:s} does not have the chemical symbols.".format(word))
+            except (IndexError):
+                if (len(stack) != 0):
+                    stack.pop()
+                else:
+                    output = []
                     break
 
-            i += 1
+            
+            # third step: find the chemical symbol
+            try:
+                # if found
+                chemical_symbol = periodic_table[top.lower()]
+                has_added = True
+                output_length += len(chemical_symbol.get_symbol())
+                output.append(chemical_symbol)
+                i += len(chemical_symbol.get_symbol())
+                
+
+            except (KeyError):
+                # else
+                has_added = False
+
+                if (len(stack[ len(stack) - 1 ]) == 0):
+                    if (len(output) == 0):
+                        break
+                    rmv = output.pop()
+                    i -= len(rmv.get_symbol())
+                    output_length -= len(rmv.get_symbol())
+
+            if (output_length >= len(word)):
+                break
+
 
     # Output the result
     print("Output:")

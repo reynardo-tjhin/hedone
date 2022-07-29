@@ -1,6 +1,3 @@
-from re import A, L
-from attr import has
-from numpy import char
 import pandas as pd
 
 # Create a class of Chemical

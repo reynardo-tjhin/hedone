@@ -24,3 +24,9 @@ Did you mean?
 1. Pant
 2. Print
 3. Parent
+
+## Versions
+
+1st version: can handle misplaced words well
+however, the downside is mispelled words may be ranked lower because it uses euclidean
+distance calculation method to find the average score between the keys.

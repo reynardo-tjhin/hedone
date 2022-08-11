@@ -79,6 +79,10 @@ def fix_typo(dictionary: Any, typo: str) -> list(('str', int)):
     len_of_typo = len(typo)
     for w in dictionary[len_of_typo]:
 
+        # no typo, English word is found
+        if (typo == w):
+            return [(w, 0)]
+
         # calculate score
         dict1 = {}
         dict2 = {}
@@ -89,6 +93,8 @@ def fix_typo(dictionary: Any, typo: str) -> list(('str', int)):
             # check if any of the letters are different
             if (letter != w[i]):
                 score += measure_distance(letter, w[i])
+            else:
+                score -= 1
 
             # to check for misplaced error (for typo)
             if (letter in dict1):
@@ -106,7 +112,7 @@ def fix_typo(dictionary: Any, typo: str) -> list(('str', int)):
         
         # misplaced error
         if (dict1 == dict2):
-            score = 0
+            score = -1 * len_of_typo
         
         # append to output (only 5 closest are added)
         output.append((w, score))
